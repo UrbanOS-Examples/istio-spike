@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns-istio
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: external-dns-istio
+  template:
+    metadata:
+      labels:
+        app: external-dns-istio
+    spec:
+      serviceAccountName: external-dns-istio
+      containers:
+      - name: external-dns-istio
+        image: registry.opensource.zalan.do/teapot/external-dns:latest
+        args:
+        - --provider=aws
+        - --source=istio-gateway
+        - --aws-zone-type=public
+        - --domain-filter=dev.internal.smartcolumbusos.com.
+        - --domain-filter=dev-smartos.com.
+        - --policy=upsert-only
+        - --registry=txt
+        - --txt-owner-id=scos-identifier 
+        - --log-level=debug
